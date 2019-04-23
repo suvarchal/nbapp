@@ -1,0 +1,40 @@
+# Use an official Python runtime as a parent image
+FROM python:3.6-slim
+
+# Set the working directory to /app
+
+
+
+COPY ./requirements.txt /requirements.txt
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+#RUN cat requirements.txt | sed -e '/^\s*#.*$/d' -e '/^\s*$/d' | xargs -n 1 pip install || true
+
+# Make port 80 available to the world outside this container
+EXPOSE 5000
+
+RUN useradd -m nbuser
+RUN groupadd docker
+RUN usermod -aG docker nbuser
+
+
+USER nbuser
+ENV HOME=/home/nbuser
+WORKDIR $HOME
+
+COPY ./app.py $HOME/app.py
+COPY ./static $HOME/static
+COPY ./templates $HOME/templates
+
+#COPY ./app.py /app.py
+#COPY ./static /static
+#COPY ./templates /templates
+
+#ENV RAMADDA_BASE_URL http://0.0.0.0:8080/repository
+
+
+ENV FLASK_APP app.py 
+# Run app.py when the container launches
+CMD ["python", "app.py"]
+

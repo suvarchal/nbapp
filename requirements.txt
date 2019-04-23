@@ -1,0 +1,7 @@
+Flask
+Redis
+Docker
+celery
+flask-sessions
+redis_session
+gunicorn
