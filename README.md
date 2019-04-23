@@ -1,2 +1,2 @@
 # nbapp
-Yet another jupyter hub with a twist.
+Yet another jupyter hub with custom binder[https://binder.pangeo.io/] like abilities for custom deployments.
