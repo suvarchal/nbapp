@@ -1,0 +1,25 @@
+version: '3'
+  
+services:
+  reverse-proxy:
+    # The official v2.0 Traefik docker image
+    image: traefik
+    # Enables the web UI and tells Traefik to listen to docker
+    command:  --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+        #- $PWD/traefik.toml:/etc/traefik/traefik.toml
+
+# this is simplest 
+  notebook:
+    image: jupyter/base-notebook # any jupyter notebook container will do
+    expose: ["8888"] # not required traefik takes care
+    command: start-notebook.sh --NotebookApp.base_url='notebook/' --NotebookApp.token=''
+    labels:
+      - "traefik.http.routers.notebook.rule=Host(`localhost`)"
+      - "traefik.http.routers.notebook.rule=PathPrefix(`/notebook`)"
+
