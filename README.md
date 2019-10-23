@@ -7,7 +7,7 @@ As an example: nbapp integrated with a scientific content management system, [RA
 ![preview_nbapp](https://github.com/suvarchal/nbapp/blob/master/docs/preview_nbapp.gif "nbapp preview with RAMADDA").
 
 ### Framework:
-A python-flask app (_[nbapp/app.py](https://github.com/suvarchal/nbapp/tree/master/nbapp)_), defines routes to spawn dockerized Jupyter notebook servers with labels that lets [traefik][traefik] to reverse proxy dynamically to the notebook server. 
+A python-flask app (_[nbapp](https://github.com/suvarchal/nbapp/tree/master/nbapp)_), defines routes to spawn dockerized Jupyter notebook servers with labels that lets [traefik][traefik] to reverse proxy dynamically to the notebook server. 
 
 Although traefik and flask can run natively on linux servers, entire deployment is packaged in containers for ease of deployment using [docker-compose](https://docs.docker.com/compose/). Read section below for deployment.
     
@@ -22,4 +22,15 @@ Directory [deploy](https://github.com/suvarchal/nbapp/tree/master/deploy) contai
 >Please raise an [issue](https://github.com/suvarchal/nbapp/issues) about your deployment needs. We might be able to provide support.
 
 
-If nginx or apache are used as webserver, sample configurations are provided (with SSL termination) in [deploy][deploy] directory using _mylabserver.com_ as an example host. 
+If nginx or apache are used as webserver, sample configurations are provided (with SSL termination) in [deploy][deploy] directory using _mylabserver.com_ as an example host.  
+
+
+
+[jupyter]: https://jupyter.org/
+[jupyterhub]: https://jupyter.org/hub
+[REST]: https://en.wikipedia.org/wiki/Representational_state_transfer
+[RAMADDA]: https://www.geodesystems.com
+[binder]: https://binder.pangeo.io
+[traefik]: https://traefik.io
+[vagrant]: https://www.vagrantup.com/
+[deploy]: https://github.com/suvarchal/nbapp/tree/master/deploy
