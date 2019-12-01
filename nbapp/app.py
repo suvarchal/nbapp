@@ -156,6 +156,7 @@ def create_container(username,volume,**kwargs):
     image = JUPYTER_CONTAINER # default is "jupyter/base-notebook"
     container = client.containers.run(image,
                    ["start-notebook.sh","--NotebookApp.base_url="+username+"/","--NotebookApp.token=''",
+                   "--NotebookApp.allow_remote_access=True",
                    "--MappingKernelManager.cull_idle_timeout="+str(CULL_IDLE_TIMEOUT),
                    "--NotebookApp.shutdown_no_activity_timeout="+str(int(CULL_IDLE_TIMEOUT)+10),
                    "-y","work"],labels=labels,network="traefik_default",volumes=volumes,detach=True,remove=True,name=username ) 
