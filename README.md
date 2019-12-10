@@ -16,6 +16,8 @@ Directory [deploy](https://github.com/suvarchal/nbapp/tree/master/deploy) contai
 
 * Directory [traefik](https://github.com/suvarchal/nbapp/tree/master/deploy/traefik) contains docker compose files (with commentary for modifications) for some use cases. In simplest case it amounts to `docker-compose up -d` for deployment.
 
+    If you have docker-hub account [![Try in PWD](https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png)](https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/suvarchal/nbapp/master/deploy/traefik/docker-compose.yml)
+
 
 * For Virtual Machine based deployments, a Vagrantfile sample is provided in [deploy](https://github.com/suvarchal/nbapp/tree/master/deploy). This is based on virtual box as a provider but it can be adapted to other [Vagrant][vagrant] providers.
 
