@@ -119,12 +119,15 @@ def jupyter_start():
    #         </form>""")
     return "Nothing Yet!"
 
+
 @app.route('/notebook/gh/<ghuser>/<ghrepo>')
-def gh_binding(ghuser, ghrepo):
+@app.route('/notebook/gh/<ghuser>/<ghrepo>/<ghbranch>')
+def gh_binding(ghuser, ghrepo, ghbranch="master"):
   """ download notebook(s) from github to interface like binderhub 
   """
-  name = request.args.get('name', '')
+  filepath = request.args.get('filepath', '')
 
+  # check if session exists or create a new one
   if 'simplejhub-username' in session:
       print('using existing session')
       username = session['simplejhub-username']
@@ -146,28 +149,35 @@ def gh_binding(ghuser, ghrepo):
       timeout =15
       sleep(3) # create container delay
 
-  if name:
+  if filepath:
+     name = filepath.split('/')[-1]
      if not name.endswith(".ipynb"):
         return "Not a valid notebook file?"
-     url = f"https://github.com/{ghuser}/{ghrepo}/raw/master/{name}"
+     url = f"https://github.com/{ghuser}/{ghrepo}/raw/{ghbranch}/{filepath}"
+     print(url)
+     # or use "https://raw.githubusercontent.com/{ghuser}/{ghrepo}/{ghbranch}/{filepath}"
      ret_code = save_file(url, f"{tempdir}/{name}")
      if ret_code:
         redirect_path=redirect_path+f"notebooks/{name}"     
         return redirect(redirect_path, code=302)
   else:
      url = f"https://github.com/{ghuser}/{ghrepo}.git"
-     ret_code = git_clone(url, f"{tempdir}/{ghrepo}")
-     if ret_code:
+     ret_code = git_clone(url, f"{tempdir}/{ghrepo}", ghbranch)
+
+     if ret_code:  # and branch_error_code: # ok to just check on master
         redirect_path=redirect_path+f"notebooks/"     
         return redirect(redirect_path, code=302)
   return "Error in URL"
 
-def git_clone(url, path):
+def git_clone(url, path, branch):
     import subprocess
     import string
     import random
     randdir = "".join(random.choice(string.ascii_lowercase) for i in range(5))
     clone_error_code = subprocess.call(["git", "clone", url, path])
+    branch_error_code = subprocess.call(["git", "checkout", branch])
+    # also return if branch switch is successful 
+    # but ok to just check on master to be generic
     return not clone_error_code
 
 
