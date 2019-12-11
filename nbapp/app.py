@@ -169,18 +169,20 @@ def gh_binding(ghuser, ghrepo, ghbranch="master"):
         return redirect(redirect_path, code=302)
   return "Error in URL"
 
-def git_clone(url, path, branch):
+def git_clone(url, path, branch=None):
     import subprocess
     import string
     import random
-    randdir = "".join(random.choice(string.ascii_lowercase) for i in range(5))
-    clone_error_code = subprocess.call(["git", "clone", url, path])
-    branch_error_code = subprocess.call(["git", "checkout", branch])
+    if not os.path.exists(path):
+       clone_error_code = subprocess.call(["git", "clone", url, path])
+    else:
+       clone_error_code = subprocess.call(["cd", path, ";", "git", "pull"], shell=True )
+    if branch:
+        branch_error_code = subprocess.call(["git", "checkout", branch])
+    
     # also return if branch switch is successful 
     # but ok to just check on master to be generic
     return not clone_error_code
-
-
 
 
 def create_container(username,volume,**kwargs):
