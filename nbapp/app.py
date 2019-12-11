@@ -42,25 +42,6 @@ def status(id):
     client.get('id')
     
 
-
-#@app.route('/',methods=['GET','POST'])  
-#def index():
-#    if request.method == 'POST':
-#        session['simplejhub-username'] = request.form['username']
-#        return redirect(url_for('index'))
-#
-#    if 'simplejhub-username' in session:
-#        return f"user name is {session['simplejhub-username']}" 
-#    else:
-#        return '''
-#        <form method="post">
-#            <p><input type=text name=username>
-#            <p><input type=submit value=Login>
-#        </form>
-#    '''
-
-
-
 @app.route('/logout')
 def logout():
     "on logout stop container by name"
@@ -125,19 +106,9 @@ def jupyter_start():
         else:
             return "Not a valid Jupyter Notebook?"
          
-        #time.sleep(15)
         redirect_path=redirect_path+f"notebooks/{filename}"     
         
-        #print('*************************REMOTREEEEE*****************************************')
-        #print(request.remote_addr)
-        #print(request.remote_addr)
 
-        if NOTEBOOK_HOST != request.remote_addr:
-            #print('******************************************************************')
-            redirect_path=redirect_path.replace(NOTEBOOK_HOST,request.remote_addr)
-            print(redirect_path)
-        
-        #print('----------------------')
         print(redirect_path) #for debugging
         return redirect(redirect_path, code=302)
         #return render_template('loading.html',redirect_path=redirect_path,timeout=10)# timeout)   
@@ -148,19 +119,73 @@ def jupyter_start():
    #         </form>""")
     return "Nothing Yet!"
 
+@app.route('/notebook/gh/<ghuser>/<ghrepo>')
+def gh_binding(ghuser, ghrepo):
+  """ download notebook(s) from github to interface like binderhub 
+  """
+  name = request.args.get('name', '')
+
+  if 'simplejhub-username' in session:
+      print('using existing session')
+      username = session['simplejhub-username']
+      tempdir  = session['simplejhub-path']
+      redirect_path = f"http://{NOTEBOOK_HOST}/{username}/"
+      try: 
+          client.containers.get(username)
+      except:
+          username,tempdir = set_session()
+          print("Created a new session for you ... ",username)
+          redirect_path = create_container(username,tempdir)
+          sleep(3) #creating container delay
+                 
+  else:
+      username, tempdir = set_session()
+      print("Created a new session for you ... ",username)
+      redirect_path = create_container(username,tempdir)
+
+      timeout =15
+      sleep(3) # create container delay
+
+  if name:
+     if not name.endswith(".ipynb"):
+        return "Not a valid notebook file?"
+     url = f"https://github.com/{ghuser}/{ghrepo}/raw/master/{name}"
+     ret_code = save_file(url, f"{tempdir}/{name}")
+     if ret_code:
+        redirect_path=redirect_path+f"notebooks/{name}"     
+        return redirect(redirect_path, code=302)
+  else:
+     url = f"https://github.com/{ghuser}/{ghrepo}.git"
+     ret_code = git_clone(url, f"{tempdir}/{ghrepo}")
+     if ret_code:
+        redirect_path=redirect_path+f"notebooks/"     
+        return redirect(redirect_path, code=302)
+  return "Error in URL"
+
+def git_clone(url, path):
+    import subprocess
+    import string
+    import random
+    randdir = "".join(random.choice(string.ascii_lowercase) for i in range(5))
+    clone_error_code = subprocess.call(["git", "clone", url, path])
+    return not clone_error_code
+
+
+
+
 def create_container(username,volume,**kwargs):
     
-    
-    labels= {"traefik.frontend.rule":f"Host:{NOTEBOOK_HOST};PathPrefix:/{username}/"}
+    labels={f"traefik.http.routers.{username}.rule": f"Host:(`{NOTEBOOK_HOST}`)", f"traefik.http.routers.{username}.rule": f"Host:(`localhost`)",f"traefik.http.routers.{username}.rule": f"PathPrefix(`/{username}`)"}    
     volumes={volume: {'bind': '/home/jovyan/work', 'mode': 'rw'}}
     image = JUPYTER_CONTAINER # default is "jupyter/base-notebook"
+    # use NOTEBOOK_HOST afor allow_origin in future
     container = client.containers.run(image,
                    ["start-notebook.sh","--NotebookApp.base_url="+username+"/","--NotebookApp.token=''",
                    "--NotebookApp.allow_remote_access=True",
                    "--MappingKernelManager.cull_idle_timeout="+str(CULL_IDLE_TIMEOUT),
                    "--NotebookApp.shutdown_no_activity_timeout="+str(int(CULL_IDLE_TIMEOUT)+10),
+                   "--NotebookApp.allow_origin='*'",
                    "-y","work"],labels=labels,network="traefik_default",volumes=volumes,detach=True,remove=True,name=username ) 
-#                   "--NotebookApp.allow_origin='*'","-y","work"],
 
     #print(container.logs())
     return f'http://{NOTEBOOK_HOST}/{username}/' #"http://localhost/"+user
@@ -176,12 +201,6 @@ def save_file(url,path):
         response.raw.decode_content = True
         shutil.copyfileobj(response.raw, f)
     return True
-
-##username scientist names
-##js ping and redirect using window.location
-## when a returning user returns return same notebook as previous session
-## when a user shares then environment can be made fixed. 
-## when user downloads a notebook, the environment is also given
 
 
 if __name__ == '__main__':
