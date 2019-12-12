@@ -173,10 +173,10 @@ def git_clone(url, path, branch=None):
     import subprocess
     import string
     import random
-    if not os.path.exists(path):
-       clone_error_code = subprocess.call(["git", "clone", url, path])
-    else:
-       clone_error_code = subprocess.call(["cd", path, ";", "git", "pull"], shell=True )
+    
+    if os.path.exists(path):
+        shutil.rmtree(path) 
+    clone_error_code = subprocess.call(["git", "clone", url, path])
     if branch:
         branch_error_code = subprocess.call(["git", "checkout", branch])
     
