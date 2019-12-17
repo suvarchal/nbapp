@@ -3,7 +3,8 @@
 This _framework_ uses dynamic reverse proxy (using _[Traefik][traefik]_) to expose containerized [Jupyter][jupyter] notebook servers in response to custom [REST][REST] endpoints. This helps to build [Binder][binder]-like abilities for a custom notebook repository or [REST][REST] endpoints. This can lead to simplified deployments then using [Jupyter Hub][jupyterhub] in certain use cases.
 
 
-As an example: nbapp integrated with a scientific content management system, [RAMADDA](https://www.geodesystems.com), lets its users interact with the published [Jupyter][jupyter] notebooks with a click:
+As an example: nbapp integrated with a scientific content management system, [RAMADDA](https://www.geodesystems.com), lets its users interact with the published [Jupyter][jupyter] notebooks with a click: Any Jupyter notebook on http://weather.rsmas.miami.edu/repository or https://unidata.github.io/drilsdown/examples.html can be made online with a click.
+
 ![preview_nbapp](https://github.com/suvarchal/nbapp/blob/master/docs/preview_nbapp.gif "nbapp preview with RAMADDA").
 
 ### Framework:
